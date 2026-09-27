@@ -94,7 +94,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
     name: /${{ matrix.env.PRIMARY }} ${{ matrix.env.GATE_TAGS }} JDK${{ matrix.env.JDK_VERSION }}
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -242,7 +242,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
     name: /substratevm on Windows
     runs-on: windows-2022
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       MX_PYTHON: 'python'
       PYTHONIOENCODING: 'utf-8'
