@@ -1,0 +1,13 @@
+diff --git a/.github/workflows/reachability-metadata-template.yml b/.github/workflows/reachability-metadata-template.yml
+index 478de8d4c47..5f541bb00b4 100644
+--- a/.github/workflows/reachability-metadata-template.yml
++++ b/.github/workflows/reachability-metadata-template.yml
+@@ -67,7 +67,7 @@ jobs:
+   populate-matrix:
+     name: Populate matrix
+     runs-on: ubuntu-22.04
+-    if: (github.event_name == 'schedule' && github.repository == 'oracle/graal') || (github.event_name != 'schedule')
++    if: (github.event_name == 'schedule' && (github.repository == 'oracle/graal' || github.repository == 'sajuptpm/graal')) || (github.event_name != 'schedule')
+     outputs:
+       matrix: ${{ steps.set-matrix.outputs.matrix }}
+     steps:
