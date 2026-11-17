@@ -52,7 +52,7 @@ on:
 env:
   LIBRARY_METADATA_PATH: ${{ github.workspace }}/vm/tests/gh_workflows/NILayerTests
   JAVA_VERSION: 21
-  PYTHON_VERSION: 3.12.3
+  PYTHON_VERSION: '3.12'
 
 permissions:
   contents: read
@@ -67,7 +67,7 @@ jobs:
 
   populate-matrix:
     name: Populate matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: ${{ github.repository == 'sajuptpm/graal' || github.repository == 'oracle/graal' }}
     outputs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -89,7 +89,7 @@ jobs:
 
   test-native-image-layer-build:
     name: ${{ matrix.coordinates }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       GRAALVM_HOME: ${{ github.workspace }}/graalvm # identical to the one in ./.github/workflows/build-graalvm
     timeout-minutes: 30
