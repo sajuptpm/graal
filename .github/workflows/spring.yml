@@ -61,7 +61,7 @@ permissions:
 jobs:
   build-graalvm-and-spring:
     name: Native Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: (github.event_name == 'schedule' && github.repository == 'oracle/graal') || (github.event_name != 'schedule')
     steps:
     - name: Checkout oracle/graal
