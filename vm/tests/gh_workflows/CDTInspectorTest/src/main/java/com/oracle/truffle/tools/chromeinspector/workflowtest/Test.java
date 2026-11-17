@@ -100,7 +100,11 @@ public class Test {
 
         @Override
         public void accept(String line) {
-            if (line.startsWith("Debugger listening on") || line.startsWith("To start debugging") || line.contains("devtools://")) {
+            if (line.startsWith("Debugger listening on") ||
+                line.startsWith("To start debugging") ||
+                line.startsWith("For help, see") ||
+                line.contains("devtools://") ||
+                line.contains("chrome-debugger")) {
                 return;
             }
             String goldenLine;
