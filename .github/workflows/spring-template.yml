@@ -84,4 +84,6 @@ jobs:
       run: |
         cd ${{ env.SPRING_PETCLINIC_PATH }}
         python3 -c "import re; p = 'build.gradle'; t = open(p).read(); t = re.sub(r'id .org\.cyclonedx\.bom.*?\n', '', t); t = re.sub(r'cyclonedxBom\s*\{.*?\n\}', '', t, flags=re.DOTALL); t = re.sub(r'tasks\.named\(.cyclonedxDirectBom.\)\.configure\s*\{.*?\n\}', '', t, flags=re.DOTALL); open(p, 'w').write(t)"
+        mkdir -p src/main/resources/META-INF/native-image src/test/resources/META-INF/native-image
+        python3 -c "import json; cfg = [{'name': 'org.thymeleaf.expression.Temporals', 'allDeclaredMethods': True, 'queryAllDeclaredMethods': True, 'methods': [{'name': 'format', 'parameterTypes': ['java.time.temporal.Temporal', 'java.lang.String']}]}]; [open(p, 'w').write(json.dumps(cfg)) for p in ['src/main/resources/META-INF/native-image/reflect-config.json', 'src/test/resources/META-INF/native-image/reflect-config.json']]"
         ./gradlew nativeTest

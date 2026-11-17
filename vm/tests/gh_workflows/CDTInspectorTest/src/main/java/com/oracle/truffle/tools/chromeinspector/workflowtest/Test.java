@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -67,8 +68,11 @@ public class Test {
             List<String> goldenLines = Files.readAllLines(Paths.get(scriptFile + ".out"));
             OutputComparator outputComparator = new OutputComparator(goldenLines);
             String url = Launcher.launch(graalLauncher, scriptFile, true, outputComparator);
+            System.err.println("LAUNCH: DevTools URL is " + url);
             driver.get(url);
+            System.err.println("LAUNCH: Navigated to DevTools URL. Running tests...");
             TestCDTBasics.test(driver, outputComparator);
+            System.err.println("LAUNCH: Test completed successfully.");
         } finally {
             if (driver != null) {
                 try {
@@ -90,7 +94,10 @@ public class Test {
         options.setBinary(chromeBin);
         options.setBrowserVersion(chromeVersion);
         options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
+        options.addArguments("--headless=new");
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--disable-dev-shm-usage");
+        options.setPageLoadStrategy(PageLoadStrategy.NONE);
         System.err.println("Creating driver using options: "+options);
         WebDriver driver;
         try {
