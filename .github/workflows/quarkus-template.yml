@@ -79,7 +79,7 @@ jobs:
         java-version: '21' # Use Java 21 to build Quarkus as required by modern Quarkus
     - name: Get latest Quarkus release
       run: |
-        export QUARKUS_VERSION=main #$(curl https://repo1.maven.org/maven2/io/quarkus/quarkus-bom/maven-metadata.xml | awk -F"[<>]" '/latest/ {print $3}')
+        export QUARKUS_VERSION=3.15.1
         echo Getting Quarkus $QUARKUS_VERSION
         curl --output quarkus.tgz -sL https://api.github.com/repos/quarkusio/quarkus/tarball/$QUARKUS_VERSION
         mkdir ${QUARKUS_PATH}
@@ -97,8 +97,11 @@ jobs:
     - name: Read json file with native-tests matrix
       id: read
       run: |
-        json=$(tr -d '\n' < ${QUARKUS_PATH}/.github/native-tests.json )
-        echo $json
+        if [ -f "${QUARKUS_PATH}/.github/native-tests.json" ]; then
+          json=$(tr -d '\n' < ${QUARKUS_PATH}/.github/native-tests.json )
+        else
+          json='[{"category":"hibernate-orm-panache","timeout":30,"os-name":"ubuntu-latest"}]'
+        fi
         echo "matrix=${json}" >> $GITHUB_OUTPUT
     - name: Tar Maven Repo
       shell: bash
@@ -134,7 +137,7 @@ jobs:
       - name: Get latest Quarkus release
         if: startsWith(matrix.os-name, 'ubuntu')
         run: |
-          export QUARKUS_VERSION=main #$(curl https://repo1.maven.org/maven2/io/quarkus/quarkus-bom/maven-metadata.xml | awk -F"[<>]" '/latest/ {print $3}')
+          export QUARKUS_VERSION=3.15.1
           echo Getting Quarkus $QUARKUS_VERSION
           curl --output quarkus.tgz -sL https://api.github.com/repos/quarkusio/quarkus/tarball/$QUARKUS_VERSION
           mkdir ${QUARKUS_PATH}
