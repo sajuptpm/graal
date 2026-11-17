@@ -83,6 +83,5 @@ jobs:
     - name: Run nativeTest in spring-petclinic${{ inputs.NATIVE_IMAGE_OPTIONS && format(' with ''{0}''', inputs.NATIVE_IMAGE_OPTIONS) || '' }}
       run: |
         cd ${{ env.SPRING_PETCLINIC_PATH }}
-        sed -i '/org.cyclonedx.bom/d' build.gradle
-        sed -i '/cyclonedxBom {/,/}/d' build.gradle
+        python3 -c "import re; p = 'build.gradle'; t = open(p).read(); t = re.sub(r'id .org\.cyclonedx\.bom.*?\n', '', t); t = re.sub(r'cyclonedxBom\s*\{.*?\n\}', '', t, flags=re.DOTALL); t = re.sub(r'tasks\.named\(.cyclonedxDirectBom.\)\.configure\s*\{.*?\n\}', '', t, flags=re.DOTALL); open(p, 'w').write(t)"
         ./gradlew nativeTest
