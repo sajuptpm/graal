@@ -24,12 +24,16 @@
 - **Inherited Adaptations**: Inherits the fork repository name filter `(github.repository == 'oracle/graal' || github.repository == 'sajuptpm/graal')` and pinned action SHAs from `micronaut-template.yml` and `build-graalvm.yml`.
 
 ## 4. Verification Evidence & Test Runs
-- **Run ID**: Verified through `micronaut.yml` and `micronaut-template.yml` execution runs:
-  - Run ID: `44110812632`
+- **Run ID**: Verified on `master` branch via on-demand workflow dispatch:
+  - Run ID: `44191417460` ([Run 44191417460](https://github.com/sajuptpm/graal/actions/runs/44191417460))
+  - Trigger: `workflow_dispatch` on `master`
+  - Total Duration: 41m 6s
   - Jobs:
-    - `call-template / build-graalvm / Build GraalVM` (7m 37s, `success`)
-    - `call-template / Native Tests` (42m 48s, `success`)
-- **Outcome**: `success` (All native unit and launch tests passed).
+    - `call-template / build-graalvm / Build GraalVM` (6m 56s, `success`)
+    - `call-template / Native Tests` (34m 7s, `success`)
+      - `Run nativeTest in Micronaut launch project with '--future-defaults=all'`: `success` (3m 38s)
+      - `Run nativeTest in micronaut-core with '--future-defaults=all'`: `success` (30m 1s)
+- **Outcome**: `success` (100% passed - All native image builds and JUnit test suites passed with `--future-defaults=all`).
 
 ## 5. Security & Hygiene Assessment
 - **Permissions**: Fully governed by `micronaut-template.yml` which defines `permissions: contents: read`.
