@@ -100,6 +100,9 @@ public class Test {
 
         @Override
         public void accept(String line) {
+            if (line.startsWith("Debugger listening on") || line.startsWith("To start debugging") || line.contains("devtools://")) {
+                return;
+            }
             String goldenLine;
             do {
                 goldenLine = goldenLines.get(index++);
