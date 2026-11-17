@@ -37,13 +37,23 @@ import java.util.function.Consumer;
  */
 public final class Launcher {
 
+    private static volatile Process process;
+
     private Launcher() {
         throw new UnsupportedOperationException();
+    }
+
+    public static void stop() {
+        Process p = process;
+        if (p != null) {
+            p.destroyForcibly();
+        }
     }
 
     public static String launch(String graalLauncher, String scriptFile, boolean suspend, Consumer<String> output) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder(graalLauncher, "--engine.WarnInterpreterOnly=false", "--inspect=0", "--inspect.Suspend=" + suspend, "--inspect.Path=InspectCDT", scriptFile);
         Process p = pb.start();
+        process = p;
         AtomicReference<String> devtoolsURL = new AtomicReference<>();
         CountDownLatch launcherStartedLatch = new CountDownLatch(1);
         BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));

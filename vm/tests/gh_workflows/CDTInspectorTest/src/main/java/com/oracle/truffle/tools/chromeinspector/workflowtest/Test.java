@@ -60,14 +60,28 @@ public class Test {
             chromeVersion = chrome[1];
         }
 
-        WebDriver driver = createDriver(chromeBin, chromeVersion);
-        List<String> goldenLines = Files.readAllLines(Paths.get(scriptFile + ".out"));
-        OutputComparator outputComparator = new OutputComparator(goldenLines);
-        String url = Launcher.launch(graalLauncher, scriptFile, true, outputComparator);
-        driver.get(url);
-        TestCDTBasics.test(driver, outputComparator);
-        driver.close();
-        driver.quit();
+        Runtime.getRuntime().addShutdownHook(new Thread(Launcher::stop));
+        WebDriver driver = null;
+        try {
+            driver = createDriver(chromeBin, chromeVersion);
+            List<String> goldenLines = Files.readAllLines(Paths.get(scriptFile + ".out"));
+            OutputComparator outputComparator = new OutputComparator(goldenLines);
+            String url = Launcher.launch(graalLauncher, scriptFile, true, outputComparator);
+            driver.get(url);
+            TestCDTBasics.test(driver, outputComparator);
+        } finally {
+            if (driver != null) {
+                try {
+                    driver.close();
+                } catch (Throwable t) {
+                }
+                try {
+                    driver.quit();
+                } catch (Throwable t) {
+                }
+            }
+            Launcher.stop();
+        }
         System.exit(0);
     }
 
@@ -101,6 +115,9 @@ public class Test {
 
         @Override
         public void accept(String line) {
+            if (line == null || line.isBlank()) {
+                return;
+            }
             if (line.startsWith("Debugger listening on") ||
                 line.startsWith("To start debugging") ||
                 line.startsWith("For help, see") ||
@@ -110,8 +127,11 @@ public class Test {
             }
             String goldenLine;
             do {
+                if (index >= goldenLines.size()) {
+                    return;
+                }
                 goldenLine = goldenLines.get(index++);
-            } while (goldenLine.startsWith("#") || line.isBlank());
+            } while (goldenLine.startsWith("#") || goldenLine.isBlank());
             line = line.trim();
             if (!goldenLine.equals(line)) {
                 if (!Pattern.matches(goldenLine, line)) {
