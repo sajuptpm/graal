@@ -41,6 +41,9 @@
 
 name: Build GraalVM
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
     inputs:
