@@ -23,5 +23,6 @@ jobs:
       - name: Codespell
         uses: codespell-project/actions-codespell@v2.2
         with:
+          config: .codespellrc
           check_hidden: true
           skip: .git,.gitignore,.gitattributes
