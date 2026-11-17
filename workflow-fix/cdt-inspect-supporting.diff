@@ -1,0 +1,55 @@
+diff --git a/vm/tests/gh_workflows/CDTInspectorTest/src/main/java/com/oracle/truffle/tools/chromeinspector/workflowtest/Launcher.java b/vm/tests/gh_workflows/CDTInspectorTest/src/main/java/com/oracle/truffle/tools/chromeinspector/workflowtest/Launcher.java
+index 1520fa821fe..f03ac13a3d3 100644
+--- a/vm/tests/gh_workflows/CDTInspectorTest/src/main/java/com/oracle/truffle/tools/chromeinspector/workflowtest/Launcher.java
++++ b/vm/tests/gh_workflows/CDTInspectorTest/src/main/java/com/oracle/truffle/tools/chromeinspector/workflowtest/Launcher.java
+@@ -37,13 +37,23 @@ import java.util.function.Consumer;
+  */
+ public final class Launcher {
+ 
++    private static volatile Process process;
++
+     private Launcher() {
+         throw new UnsupportedOperationException();
+     }
+ 
++    public static void stop() {
++        Process p = process;
++        if (p != null) {
++            p.destroyForcibly();
++        }
++    }
++
+     public static String launch(String graalLauncher, String scriptFile, boolean suspend, Consumer<String> output) throws IOException, InterruptedException {
+         ProcessBuilder pb = new ProcessBuilder(graalLauncher, "--engine.WarnInterpreterOnly=false", "--inspect=0", "--inspect.Suspend=" + suspend, "--inspect.Path=InspectCDT", scriptFile);
+         Process p = pb.start();
++        process = p;
+         AtomicReference<String> devtoolsURL = new AtomicReference<>();
+         CountDownLatch launcherStartedLatch = new CountDownLatch(1);
+         BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+@@ -54,8 +64,8 @@ public final class Launcher {
+                 while ((line = errorReader.readLine()) != null) {
+                     if (!haveURL) {
+                         int i = line.indexOf("devtools://");
+-                        if (i > 0) {
+-                            String url = line.substring(i);
++                        if (i >= 0) {
++                            String url = line.substring(i).trim();
+                             devtoolsURL.set(url);
+                             launcherStartedLatch.countDown();
+                             haveURL = true;
+@@ -68,6 +78,7 @@ public final class Launcher {
+             }
+             launcherStartedLatch.countDown();
+         }, "Launcher Error Reader");
++        errorReaderThread.setDaemon(true);
+         errorReaderThread.start();
+         BufferedReader outputReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+         Thread outputReaderThread = new Thread(() -> {
+@@ -80,6 +91,7 @@ public final class Launcher {
+                 ex.printStackTrace();
+             }
+         }, "Launcher Output Reader");
++        outputReaderThread.setDaemon(true);
+         outputReaderThread.start();
+         launcherStartedLatch.await();
+ 
