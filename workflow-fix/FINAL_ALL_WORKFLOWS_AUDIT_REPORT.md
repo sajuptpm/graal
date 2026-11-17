@@ -41,7 +41,7 @@ Every single workflow in `.github/workflows/` has been systematically audited, a
 | **Quarkus Future Defaults** | `.github/workflows/quarkus-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 29 | 33m 57s | `44120903592` | #1 |
 | **Weekly Spring Tests** | `.github/workflows/spring.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 15m 10s | `44184945397` | #1 |
 | **Spring Template** | `.github/workflows/spring-template.yml` | Tier 2 | Reusable Template | **PASS** | 2 | 15m 10s | `44184945397` | #1 |
-| **Spring Future Defaults** | `.github/workflows/spring-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 15m 10s | `44184945397` | #1 |
+| **Spring Future Defaults** | `.github/workflows/spring-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 17m 50s | `44188037563` | #1 |
 | **Reachability Metadata Tests** | `.github/workflows/reachability-metadata.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 258 | 23m 22s | `44110899589` | #1 |
 | **Reachability Metadata Template** | `.github/workflows/reachability-metadata-template.yml` | Tier 2 | Reusable Template | **PASS** | 258 | 23m 22s | `44110899589` | #1 |
 | **Reachability Metadata Future** | `.github/workflows/reachability-metadata-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 258 | 23m 22s | `44110899589` | #1 |

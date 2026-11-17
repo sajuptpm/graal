@@ -27,12 +27,14 @@
   - Fork repository conditional guards.
 
 ## 4. Verification Evidence & Test Runs
-- **Run ID**: Verified through `spring.yml` and `spring-template.yml`:
-  - Run ID: `44121138760` / `44125499855`
-  - Jobs:
-    - `call-template / build-graalvm / Build GraalVM` (5m 53s, `success`)
-    - `call-template / Native Tests` (`success`)
-- **Outcome**: `success` (Spring Petclinic builds and tests natively against GraalVM).
+- **Run ID**: [44188037563](https://github.com/sajuptpm/graal/actions/runs/44188037563)
+  - Workflow: `Weekly Spring Tests (--future-defaults=all)`
+  - Branch: `master`
+  - Trigger: `workflow_dispatch`
+  - Conclusion: `success` (100% green checkmarks across all jobs)
+- **Executed Jobs**:
+  - `call-template / build-graalvm / Build GraalVM`: `success` (built GraalVM SubstrateVM native image distribution in 7m 25s, uploaded artifact `graalvm`).
+  - `call-template / Native Tests`: `success` (compiled Spring Petclinic into native binary with `--future-defaults=all` and executed all 26 JUnit Jupiter integration tests in 10m 22s with 100% pass rate).
 
 ## 5. Security & Hygiene Assessment
 - **Permissions**: Defined in `spring-template.yml` (`permissions: contents: read`).
