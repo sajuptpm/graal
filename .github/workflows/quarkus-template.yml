@@ -56,7 +56,8 @@ env:
 
 name: Weekly Quarkus Tests
 
-permissions: {}
+permissions:
+  contents: read
 jobs:
   build-graalvm:
     uses: ./.github/workflows/build-graalvm.yml
