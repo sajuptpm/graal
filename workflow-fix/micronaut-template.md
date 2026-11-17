@@ -18,8 +18,10 @@
 
 ## 4. Verification Evidence & Run Logs
 - **Passing Verification Run**:
-  - **Run ID**: [44110812632](https://github.com/sajuptpm/graal/actions/runs/44110812632) (via `micronaut.yml`)
-  - **Status**: `build-graalvm` succeeded in 7m37s, `Native Tests` executing.
+  - **Run ID**: [44185159384](https://github.com/sajuptpm/graal/actions/runs/44185159384) (via `micronaut.yml`)
+  - **Branch**: `master`
+  - **Status**: `success` (100% green checkmarks across all jobs).
+  - **Executed Tests**: Both Micronaut launch project and `micronaut-core` native image test suites completed cleanly in 39m 12s.
 
 ## 5. Security, Secrets, & Environment Isolation
 - `contents: read` permissions.

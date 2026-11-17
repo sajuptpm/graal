@@ -25,13 +25,14 @@
 
 ## 4. Verification Evidence & Run Logs
 - **Passing Verification Run**:
-  - **Run ID**: [44110812632](https://github.com/sajuptpm/graal/actions/runs/44110812632)
+  - **Run ID**: [44185159384](https://github.com/sajuptpm/graal/actions/runs/44185159384)
   - **Workflow**: `Weekly Micronaut Tests`
-  - **Branch**: `workflow-fix/audit-all-workflows`
+  - **Branch**: `master`
   - **Event**: `workflow_dispatch`
+  - **Conclusion**: `success` (100% green checkmarks across all jobs)
 - **Executed Jobs**:
-  - `call-template / build-graalvm / Build GraalVM`: `success` in 7m37s (built full GraalVM distribution, uploaded artifact `graalvm`).
-  - `call-template / Native Tests`: `in_progress` / genuine test execution (Micronaut launch project tests succeeded, `micronaut-core` native compilation active).
+  - `call-template / build-graalvm / Build GraalVM`: `success` in 7m 25s (built full GraalVM SubstrateVM native image JDK distribution, uploaded artifact `graalvm`).
+  - `call-template / Native Tests`: `success` in 31m 47s (executed genuine native image compilation and test suites across both the Micronaut starter application and `micronaut-core`).
 
 ## 5. Security, Secrets, & Environment Isolation
 - **Permissions**: Read-only repository access (`contents: read`).

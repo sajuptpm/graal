@@ -33,9 +33,9 @@ Every single workflow in `.github/workflows/` has been systematically audited, a
 | **Build GraalVM** | `.github/workflows/build-graalvm.yml` | Tier 2 | Reusable Template | **PASS** | 1 | 5m 58s | `44108606027` | #1 |
 | **Native Image Layers** | `.github/workflows/ni-layers.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 9 | 12m 45s | `44112680112` | #1 |
 | **Weekly CDT Inspector** | `.github/workflows/cdt-inspect.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 1 | 18m 37s | `44118255303` / `44125527984` | #1 |
-| **Weekly Micronaut Tests** | `.github/workflows/micronaut.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 50m 25s | `44110812632` | #1 |
-| **Micronaut Template** | `.github/workflows/micronaut-template.yml` | Tier 2 | Reusable Template | **PASS** | 2 | 50m 25s | `44110812632` | #1 |
-| **Micronaut Future Defaults** | `.github/workflows/micronaut-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 50m 25s | `44110812632` | #1 |
+| **Weekly Micronaut Tests** | `.github/workflows/micronaut.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 39m 12s | `44185159384` | #1 |
+| **Micronaut Template** | `.github/workflows/micronaut-template.yml` | Tier 2 | Reusable Template | **PASS** | 2 | 39m 12s | `44185159384` | #1 |
+| **Micronaut Future Defaults** | `.github/workflows/micronaut-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 2 | 39m 12s | `44185159384` | #1 |
 | **Weekly Quarkus Tests** | `.github/workflows/quarkus.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 29 | 33m 57s | `44120903592` | #1 |
 | **Quarkus Template** | `.github/workflows/quarkus-template.yml` | Tier 2 | Reusable Template | **PASS** | 29 | 33m 57s | `44120903592` | #1 |
 | **Quarkus Future Defaults** | `.github/workflows/quarkus-future-defaults.yml` | Tier 2 | Disabled (`disabled_fork`) | **PASS** | 29 | 33m 57s | `44120903592` | #1 |
