@@ -64,8 +64,8 @@ public final class Launcher {
                 while ((line = errorReader.readLine()) != null) {
                     if (!haveURL) {
                         int i = line.indexOf("devtools://");
-                        if (i > 0) {
-                            String url = line.substring(i);
+                        if (i >= 0) {
+                            String url = line.substring(i).trim();
                             devtoolsURL.set(url);
                             launcherStartedLatch.countDown();
                             haveURL = true;
