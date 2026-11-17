@@ -1,0 +1,41 @@
+diff --git a/.github/workflows/ni-layers.yml b/.github/workflows/ni-layers.yml
+index 0cd6e603e9c..bd1a8010fd7 100644
+--- a/.github/workflows/ni-layers.yml
++++ b/.github/workflows/ni-layers.yml
+@@ -52,7 +52,7 @@ on:
+ env:
+   LIBRARY_METADATA_PATH: ${{ github.workspace }}/vm/tests/gh_workflows/NILayerTests
+   JAVA_VERSION: 21
+-  PYTHON_VERSION: 3.12.3
++  PYTHON_VERSION: '3.12'
+ 
+ permissions:
+   contents: read
+@@ -60,15 +60,15 @@ permissions:
+ jobs:
+   build-graalvm:
+     uses: ./.github/workflows/build-graalvm.yml
+-    if: (github.repository=='oracle/graal')
++    if: ${{ github.repository == 'sajuptpm/graal' || github.repository == 'oracle/graal' }}
+     with:
+       native-images: 'native-image,native-image-configure,lib:native-image-agent'
+       components: 'Native Image,Native Image Configure Tool'
+ 
+   populate-matrix:
+     name: Populate matrix
+-    runs-on: ubuntu-latest
+-    if: (github.repository=='oracle/graal')
++    runs-on: ubuntu-22.04
++    if: ${{ github.repository == 'sajuptpm/graal' || github.repository == 'oracle/graal' }}
+     outputs:
+         matrix: ${{ steps.set-matrix.outputs.matrix }}
+     steps:
+@@ -89,7 +89,7 @@ jobs:
+ 
+   test-native-image-layer-build:
+     name: ${{ matrix.coordinates }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-22.04
+     env:
+       GRAALVM_HOME: ${{ github.workspace }}/graalvm # identical to the one in ./.github/workflows/build-graalvm
+     timeout-minutes: 30

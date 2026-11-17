@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -60,14 +61,32 @@ public class Test {
             chromeVersion = chrome[1];
         }
 
-        WebDriver driver = createDriver(chromeBin, chromeVersion);
-        List<String> goldenLines = Files.readAllLines(Paths.get(scriptFile + ".out"));
-        OutputComparator outputComparator = new OutputComparator(goldenLines);
-        String url = Launcher.launch(graalLauncher, scriptFile, true, outputComparator);
-        driver.get(url);
-        TestCDTBasics.test(driver, outputComparator);
-        driver.close();
-        driver.quit();
+        Runtime.getRuntime().addShutdownHook(new Thread(Launcher::stop));
+        WebDriver driver = null;
+        try {
+            driver = createDriver(chromeBin, chromeVersion);
+            List<String> goldenLines = Files.readAllLines(Paths.get(scriptFile + ".out"));
+            OutputComparator outputComparator = new OutputComparator(goldenLines);
+            String url = Launcher.launch(graalLauncher, scriptFile, true, outputComparator);
+            System.err.println("LAUNCH: DevTools URL is " + url);
+            driver.get(url);
+            System.err.println("LAUNCH: Navigated to DevTools URL. Running tests...");
+            TestCDTBasics.test(driver, outputComparator);
+            System.err.println("LAUNCH: Test completed successfully.");
+        } finally {
+            if (driver != null) {
+                try {
+                    driver.close();
+                } catch (Throwable t) {
+                }
+                try {
+                    driver.quit();
+                } catch (Throwable t) {
+                }
+            }
+            Launcher.stop();
+        }
+        System.exit(0);
     }
 
     private static WebDriver createDriver(String chromeBin, String chromeVersion) {
@@ -75,7 +94,10 @@ public class Test {
         options.setBinary(chromeBin);
         options.setBrowserVersion(chromeVersion);
         options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
+        options.addArguments("--headless=new");
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--disable-dev-shm-usage");
+        options.setPageLoadStrategy(PageLoadStrategy.NONE);
         System.err.println("Creating driver using options: "+options);
         WebDriver driver;
         try {
@@ -100,10 +122,23 @@ public class Test {
 
         @Override
         public void accept(String line) {
+            if (line == null || line.isBlank()) {
+                return;
+            }
+            if (line.startsWith("Debugger listening on") ||
+                line.startsWith("To start debugging") ||
+                line.startsWith("For help, see") ||
+                line.contains("devtools://") ||
+                line.contains("chrome-debugger")) {
+                return;
+            }
             String goldenLine;
             do {
+                if (index >= goldenLines.size()) {
+                    return;
+                }
                 goldenLine = goldenLines.get(index++);
-            } while (goldenLine.startsWith("#") || line.isBlank());
+            } while (goldenLine.startsWith("#") || goldenLine.isBlank());
             line = line.trim();
             if (!goldenLine.equals(line)) {
                 if (!Pattern.matches(goldenLine, line)) {

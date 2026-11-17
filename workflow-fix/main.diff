@@ -1,0 +1,22 @@
+diff --git a/.github/workflows/main.yml b/.github/workflows/main.yml
+index 950b1ea85b2..7bf43908258 100644
+--- a/.github/workflows/main.yml
++++ b/.github/workflows/main.yml
+@@ -91,7 +91,7 @@ permissions:
+ 
+ jobs:
+   build-graalvm-linux:
+-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
++    if: ${{ github.repository != 'oracle/graal' || github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+     name: /${{ matrix.env.PRIMARY }} ${{ matrix.env.GATE_TAGS }} JDK${{ matrix.env.JDK_VERSION }}
+     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+     timeout-minutes: 60
+@@ -239,7 +239,7 @@ jobs:
+         ${MX_PATH}/mx --primary-suite-path ${PRIMARY} --java-home=${JAVA_HOME} "${DYNAMIC_IMPORT_ARGS[@]}" gate --strict-mode ${{ matrix.env.GATE_OPTS }}
+       if: ${{ matrix.env.GATE_TAGS == '' }}
+   build-graalvm-windows:
+-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
++    if: ${{ github.repository != 'oracle/graal' || github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+     name: /substratevm on Windows
+     runs-on: windows-2022
+     timeout-minutes: 60

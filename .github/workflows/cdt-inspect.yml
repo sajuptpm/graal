@@ -44,6 +44,7 @@ name: Weekly CDT Inspector
 on:
   schedule:
     - cron: "30 2 * * 2,5" # Tuesday and Friday at 2:30
+  workflow_dispatch:
 
 env:
   JAVA_HOME: ${{ github.workspace }}/jdk
@@ -57,9 +58,9 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
-    if: github.repository == 'oracle/graal'
+    if: ${{ github.repository == 'sajuptpm/graal' || github.repository == 'oracle/graal' }}
 
     steps:
     - name: Checkout oracle/graal
@@ -92,4 +93,10 @@ jobs:
         ${MX_PATH}/mx --dy /tools,graal-js build
         cd tests/gh_workflows/CDTInspectorTest
         mvn -q compile
-        mvn -q exec:exec -Dtestargs="${{ github.workspace }}/graal/sdk/latest_graalvm_home/bin/js scripts/StepTest.js"
+        CHROME_BIN=$(which google-chrome || which chromium-browser || echo "")
+        if [ -n "$CHROME_BIN" ]; then
+          CHROME_VER=$($CHROME_BIN --version | grep -oP '\d+\.\d+\.\d+\.\d+' || echo "130.0.0.0")
+          mvn -q exec:exec -Dtestargs="${{ github.workspace }}/graal/sdk/latest_graalvm_home/bin/js scripts/StepTest.js $CHROME_BIN $CHROME_VER"
+        else
+          mvn -q exec:exec -Dtestargs="${{ github.workspace }}/graal/sdk/latest_graalvm_home/bin/js scripts/StepTest.js"
+        fi

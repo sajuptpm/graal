@@ -67,7 +67,7 @@ jobs:
   populate-matrix:
     name: Populate matrix
     runs-on: ubuntu-22.04
-    if: (github.event_name == 'schedule' && github.repository == 'oracle/graal') || (github.event_name != 'schedule')
+    if: (github.event_name == 'schedule' && (github.repository == 'oracle/graal' || github.repository == 'sajuptpm/graal')) || (github.event_name != 'schedule')
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
