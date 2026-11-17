@@ -1,5 +1,5 @@
 diff --git a/.github/workflows/spring-template.yml b/.github/workflows/spring-template.yml
-index 372b9190702..6a3c939073e 100644
+index 372b9190702..6415280b7e9 100644
 --- a/.github/workflows/spring-template.yml
 +++ b/.github/workflows/spring-template.yml
 @@ -63,7 +63,7 @@ jobs:
@@ -11,11 +11,12 @@ index 372b9190702..6a3c939073e 100644
      steps:
      - name: Checkout oracle/graal
        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-@@ -83,4 +83,7 @@ jobs:
+@@ -83,4 +83,8 @@ jobs:
      - name: Run nativeTest in spring-petclinic${{ inputs.NATIVE_IMAGE_OPTIONS && format(' with ''{0}''', inputs.NATIVE_IMAGE_OPTIONS) || '' }}
        run: |
          cd ${{ env.SPRING_PETCLINIC_PATH }}
 +        python3 -c "import re; p = 'build.gradle'; t = open(p).read(); t = re.sub(r'id .org\.cyclonedx\.bom.*?\n', '', t); t = re.sub(r'cyclonedxBom\s*\{.*?\n\}', '', t, flags=re.DOTALL); t = re.sub(r'tasks\.named\(.cyclonedxDirectBom.\)\.configure\s*\{.*?\n\}', '', t, flags=re.DOTALL); open(p, 'w').write(t)"
-+        mkdir -p src/main/resources/META-INF/native-image src/test/resources/META-INF/native-image
-+        python3 -c "import json; cfg = [{'name': 'org.thymeleaf.expression.Temporals', 'allDeclaredMethods': True, 'queryAllDeclaredMethods': True, 'methods': [{'name': 'format', 'parameterTypes': ['java.time.temporal.Temporal', 'java.lang.String']}]}]; [open(p, 'w').write(json.dumps(cfg)) for p in ['src/main/resources/META-INF/native-image/reflect-config.json', 'src/test/resources/META-INF/native-image/reflect-config.json']]"
++        python3 -c "open('build.gradle', 'a').write('\ngraalvmNative { binaries { all { buildArgs.add(\"-H:ReflectionConfigurationFiles=\" + file(\"reflect-config.json\").absolutePath) } } }\n')"
++        mkdir -p src/main/resources/META-INF/native-image/org.springframework.samples/spring-petclinic src/test/resources/META-INF/native-image/org.springframework.samples/spring-petclinic src/main/resources/META-INF/native-image src/test/resources/META-INF/native-image
++        python3 -c "import json; classes=['org.thymeleaf.expression.Numbers','org.thymeleaf.expression.Strings','org.thymeleaf.expression.Temporals','org.thymeleaf.expression.Lists','org.thymeleaf.expression.Dates','org.thymeleaf.expression.Calendars','org.thymeleaf.expression.Bools','org.thymeleaf.expression.Arrays','org.thymeleaf.expression.Sets','org.thymeleaf.expression.Maps','org.thymeleaf.expression.Aggregates','org.thymeleaf.expression.Messages','org.thymeleaf.expression.Ids','org.thymeleaf.expression.Uris','org.thymeleaf.expression.Conversions','org.thymeleaf.expression.ExecutionInfo','org.springframework.samples.petclinic.owner.Owner','org.springframework.samples.petclinic.owner.Pet','org.springframework.samples.petclinic.owner.PetType','org.springframework.samples.petclinic.vet.Vet','org.springframework.samples.petclinic.vet.Specialty','org.springframework.samples.petclinic.visit.Visit']; cfg=[{'name': c, 'allDeclaredConstructors': True, 'allPublicConstructors': True, 'allDeclaredMethods': True, 'allPublicMethods': True, 'queryAllDeclaredMethods': True, 'allDeclaredFields': True, 'allPublicFields': True} for c in classes]; [open(p, 'w').write(json.dumps(cfg, indent=2)) for p in ['reflect-config.json', 'src/main/resources/META-INF/native-image/reflect-config.json', 'src/test/resources/META-INF/native-image/reflect-config.json', 'src/main/resources/META-INF/native-image/org.springframework.samples/spring-petclinic/reflect-config.json', 'src/test/resources/META-INF/native-image/org.springframework.samples/spring-petclinic/reflect-config.json']]"
          ./gradlew nativeTest

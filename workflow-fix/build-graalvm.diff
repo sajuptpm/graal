@@ -1,12 +1,15 @@
 diff --git a/.github/workflows/build-graalvm.yml b/.github/workflows/build-graalvm.yml
-index 533c3580cdb..c39f35bd89f 100644
+index 533c3580cdb..5f3aad03977 100644
 --- a/.github/workflows/build-graalvm.yml
 +++ b/.github/workflows/build-graalvm.yml
-@@ -40,7 +40,6 @@
+@@ -40,7 +40,9 @@
  #
  
  name: Build GraalVM
 -description: 'Build GraalVM and set up environment for testing'
++
++permissions:
++  contents: read
  
  on:
    workflow_call:
