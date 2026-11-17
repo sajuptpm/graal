@@ -68,6 +68,7 @@ public class Test {
         TestCDTBasics.test(driver, outputComparator);
         driver.close();
         driver.quit();
+        System.exit(0);
     }
 
     private static WebDriver createDriver(String chromeBin, String chromeVersion) {

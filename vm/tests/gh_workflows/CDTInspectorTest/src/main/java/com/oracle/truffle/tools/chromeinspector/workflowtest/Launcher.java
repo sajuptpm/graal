@@ -68,6 +68,7 @@ public final class Launcher {
             }
             launcherStartedLatch.countDown();
         }, "Launcher Error Reader");
+        errorReaderThread.setDaemon(true);
         errorReaderThread.start();
         BufferedReader outputReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         Thread outputReaderThread = new Thread(() -> {
@@ -80,6 +81,7 @@ public final class Launcher {
                 ex.printStackTrace();
             }
         }, "Launcher Output Reader");
+        outputReaderThread.setDaemon(true);
         outputReaderThread.start();
         launcherStartedLatch.await();
 
