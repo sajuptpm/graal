@@ -58,11 +58,11 @@ Upon enabling the workflow, the upstream codespell action scanned all files indi
 Upstream `codespell.yml` did not define a `.codespellrc` configuration file or skip patterns. On a full repository scan, it attempted to spellcheck assembly templates, binary fixtures, dictionary lookups, and hex addresses.
 
 ### Step-by-Step Fix Implementation
-1. **Step 1**: Created a root `.codespellrc` configuration file:
+1. **Step 1**: Created a root `.codespellrc` configuration file configuring skip patterns and ignore words:
    ```ini
    [codespell]
-   skip = .git,*.png,*.jpg,*.svg,*.jar,*.class,*.gz,*.tar,*.tgz,*.zip,*.patch,*.diff,*.hex,./mx/*,./vm/mx.vm/*,./substratevm/mx.substratevm/*
-   ignore-words-list = truer,nd,ba,te,fo,alot,inout,ans,parm,parms,registred,uint,sind,uint8,uint16,uint32,uint64
+   skip = .git,*.png,*.jpg,*.svg,*.jar,*.class,*.gz,*.tar,*.tgz,*.zip,*.patch,*.diff,*.hex,./mx/*,./vm/mx.vm/*,./substratevm/mx.substratevm/*,workflow-fix/*
+   ignore-words-list = truer,uint,uint8,uint16,uint32,uint64
    ```
 2. **Step 2**: Parameterized `.github/workflows/codespell.yml` to specify `config: .codespellrc` in `codespell-project/actions-codespell@v2`.
 3. **Step 3**: Verified with actionlint and committed.
