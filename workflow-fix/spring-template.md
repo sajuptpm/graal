@@ -9,27 +9,75 @@
 - **Job Dependency Graph**:
   - `build-graalvm` -> `build-and-test-spring` (`Native Tests`).
 
-## 2. Upstream Architecture & Root Cause Analysis
-- **Upstream Guard Restriction**: Scheduled executions were blocked on non-oracle repositories due to hardcoded check `github.repository == 'oracle/graal'`.
-- **Gradle 9 CycloneDX Conflict**: Spring PetClinic's build configuration conflicts with Gradle 9's lazy task registration.
-- **Thymeleaf Reflection Metadata in Native Image**: Spring PetClinic uses `#numbers.sequence(...)` in `ownersList.html`, which failed reflectively in AOT mode without explicit metadata registration.
+---
 
-## 3. Key Changes & Fork Adaptations
-- **Dynamic Guard**: Relaxed repository check to `(github.repository == 'oracle/graal' || github.repository == 'sajuptpm/graal')`.
-- **CycloneDX Remediation**: Inline Python sanitization of `build.gradle` to exclude the broken plugin before test execution.
-- **Thymeleaf Reflection Metadata Injection**: Programmatically created comprehensive `reflect-config.json` registering all Thymeleaf expression classes and hooked it into `build.gradle` via `graalvmNative.binaries.all.buildArgs`.
-- **Runner Pinning**: Pinned runner to `ubuntu-22.04`.
+## 2. Upstream Architecture & Root Cause Analysis
+
+### Issue 1: Repository Guard Restriction
+- **Error**: Workflow skipped on schedule triggers because `if: (github.event_name == 'schedule' && github.repository == 'oracle/graal')`.
+- **Root Cause**: Upstream restricted execution strictly to `oracle/graal`.
+
+### Issue 2: Gradle 9 CycloneDX Conflict
+- **Error**:
+  ```text
+  Execution failed for task ':cyclonedxBom'.
+  Cannot query the value of this property because it has no value available.
+  ```
+- **Root Cause**: Spring Petclinic's latest `build.gradle` applies `org.cyclonedx.bom`, which fails lazy property mapping on Gradle 9.
+
+### Issue 3: Thymeleaf Reflection Missing in Native Image Mode
+- **Error**:
+  ```text
+  org.graalvm.nativeimage.MissingReflectionRegistrationError:
+  The program tried to reflectively invoke method public java.util.List org.thymeleaf.expression.Numbers.sequence(java.lang.Integer,java.lang.Integer) without it being registered.
+  HTTP 500 Internal Server Error when loading /owners?lastName=
+  ```
+- **Root Cause**: In `ownersList.html`, Thymeleaf executes `#numbers.sequence(1, totalPages)` reflectively for pagination links. Native Image AOT build had no reflection metadata for `org.thymeleaf.expression.Numbers`.
+
+---
+
+## 3. Step-by-Step Fix Implementation
+
+1. **Step 1: Relax Repository Guard**:
+   Updated condition to:
+   ```yaml
+   if: (github.event_name == 'schedule' && (github.repository == 'oracle/graal' || github.repository == 'sajuptpm/graal')) || (github.event_name != 'schedule')
+   ```
+
+2. **Step 2: Inline CycloneDX Sanitization**:
+   Stripped the broken CycloneDX plugin tasks from `build.gradle` using python regex before test execution:
+   ```bash
+   python3 -c "
+   import re
+   p = 'build.gradle'
+   c = open(p).read()
+   c = re.sub(r'id\s+[\'\"]org\.cyclonedx\.bom[\'\"].*', '', c)
+   open(p, 'w').write(c)
+   "
+   ```
+
+3. **Step 3: Programmatic Reflection Configuration Injection**:
+   Injected full reachability reflection configuration covering all 16 Thymeleaf expression helpers (`Numbers`, `Strings`, `Temporals`, `Lists`, `Dates`, `Maps`, `Sets`, `Objects`, etc.) and Petclinic model entities (`Owner`, `Pet`, `Visit`, etc.) into `reflect-config.json`.
+
+4. **Step 4: Hook into Native Image Build Args**:
+   Added `-H:ReflectionConfigurationFiles=...` to `graalvmNative.binaries.all.buildArgs` in `build.gradle`.
+
+5. **Step 5: Runner & Java Pinning**:
+   Pinned runner to `ubuntu-22.04` and `actions/setup-java` with `distribution: 'graalvm'`, `java-version: '21'`.
+
+---
 
 ## 4. Verification Evidence & Run Logs
-- **Passing Verification Run**:
-  - **Run ID**: [44184945397](https://github.com/sajuptpm/graal/actions/runs/44184945397) (via `spring.yml`)
-  - **Status**: `success` (100% green across both `build-graalvm` and `Native Tests`).
-  - **Native Tests Executed**: 26 of 26 JUnit Jupiter tests passed cleanly.
+- **Verified Runs**:
+  - `spring.yml`: [Run 44184945397](https://github.com/sajuptpm/graal/actions/runs/44184945397) — **100% SUCCESS** in 16m 53s.
+    - `build-graalvm`: 7m 25s (`success`)
+    - `Native Tests`: 7m 45s (`success`) — All 26 JUnit Jupiter tests passed cleanly.
+  - `spring-future-defaults.yml`: [Run 44188037563](https://github.com/sajuptpm/graal/actions/runs/44188037563) — **100% SUCCESS** in 18m 54s.
+    - `build-graalvm`: 7m 25s (`success`)
+    - `Native Tests`: 10m 22s (`success`) — All 26 JUnit Jupiter tests passed natively with future defaults.
 
-## 5. Security, Secrets, & Environment Isolation
-- `contents: read` permissions.
-- Action references pinned to commit SHAs.
+---
 
-## 6. Reproducibility & Upstream Compatibility
-- Diff is strictly cumulative against `$BASE_COMMIT`.
-- Backward compatible with upstream repository.
+## 5. Deliverable Files & Clean Diff Check
+- **Diff File**: `workflow-fix/spring-template.diff`
+- **Reverse Apply Verification**: `git apply --check --reverse workflow-fix/spring-template.diff` exits with code 0.
