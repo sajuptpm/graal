@@ -62,9 +62,9 @@ The four workflows are executed in the following sequential order:
 | Step | Workflow Name | Trigger Status | Run ID | Outcome | Changes / Fixes Made |
 |:---:|:---|:---:|:---:|:---:|:---|
 | 1 | Weekly Dedicated-Layer Tests | **Completed** | [45461118315](https://github.com/sajuptpm/graal/actions/runs/45461118315) | ⏱️ **Canceled (Timeout 360m)**: 43 coordinates tested before 6-hour runner limit hit. All 42 completed coordinates failed with Native Image layer layout mismatch (`monitorOffset` mismatch). | Diagnosed SubstrateVM layout verification bug & missing `dedicated-layer-test-exclusions.txt` flag |
-| 2 | Weekly Layered Tests | **Running** | [45523145309](https://github.com/sajuptpm/graal/actions/runs/45523145309) | In Progress (`build-graalvm` & `Populate matrix` running) | Initial live execution |
-| 3 | Weekly Layered Future Defaults | Pending Step 2 | TBD | Pending | Will execute after Step 2 |
-| 4 | Weekly Reachability Future Defaults | Pending Step 3 | TBD | Pending | Will execute after Step 3 |
+| 2 | Weekly Layered Tests | **In Progress** | [45523145309](https://github.com/sajuptpm/graal/actions/runs/45523145309) | 🟡 **Running**: `Populate matrix` (1m15s) ✅, `build-graalvm` (8m22s) ✅, `Build layered base` (7m57s) ✅. Base layer verified & uploaded. Currently executing `testSharedLayer` loop. | Live execution verified base layer construction |
+| 3 | Weekly Layered Future Defaults | **In Progress** | [45527017023](https://github.com/sajuptpm/graal/actions/runs/45527017023) | 🟡 **Running**: `build-graalvm` and `Populate matrix` actively executing with `--future-defaults=all`. | Triggered in sequence |
+| 4 | Weekly Reachability Future Defaults | **In Progress** | [45527086227](https://github.com/sajuptpm/graal/actions/runs/45527086227) | 🟡 **Running**: `build-graalvm` and `Populate matrix` executing, preparing 258-job parallel test matrix under `--future-defaults=all`. | Triggered in sequence |
 
 ---
 
