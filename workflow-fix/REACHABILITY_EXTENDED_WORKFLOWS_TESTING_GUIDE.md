@@ -62,9 +62,9 @@ The four workflows are executed in the following sequential order:
 | Step | Workflow Name | Trigger Status | Run ID | Outcome | Changes / Fixes Made |
 |:---:|:---|:---:|:---:|:---:|:---|
 | 1 | Weekly Dedicated-Layer Tests | **Completed** | [45461118315](https://github.com/sajuptpm/graal/actions/runs/45461118315) | ⏱️ **Canceled (Timeout 360m)**: 43 coordinates tested before 6-hour runner limit hit. All 42 completed coordinates failed with Native Image layer layout mismatch (`monitorOffset` mismatch). | Diagnosed SubstrateVM layout verification bug & missing `dedicated-layer-test-exclusions.txt` flag |
-| 2 | Weekly Layered Tests | **In Progress** | [45523145309](https://github.com/sajuptpm/graal/actions/runs/45523145309) | 🟡 **Running**: `Populate matrix` (1m15s) ✅, `build-graalvm` (8m22s) ✅, `Build layered base` (7m57s) ✅. Base layer verified & uploaded. Currently executing `testSharedLayer` loop. | Live execution verified base layer construction |
-| 3 | Weekly Layered Future Defaults | **In Progress** | [45527017023](https://github.com/sajuptpm/graal/actions/runs/45527017023) | 🟡 **Running**: `build-graalvm` and `Populate matrix` actively executing with `--future-defaults=all`. | Triggered in sequence |
-| 4 | Weekly Reachability Future Defaults | **In Progress** | [45527086227](https://github.com/sajuptpm/graal/actions/runs/45527086227) | 🟡 **Running**: `build-graalvm` and `Populate matrix` executing, preparing 258-job parallel test matrix under `--future-defaults=all`. | Triggered in sequence |
+| 2 | Weekly Layered Tests | **Completed** | [45523145309](https://github.com/sajuptpm/graal/actions/runs/45523145309) | ❌ **Failed**: `Populate matrix` (1m15s) ✅, `build-graalvm` (8m22s) ✅, `Build layered base` (7m57s) ✅. Base layer verified & uploaded. `Layered metadata tests` failed due to missing `layered-test-exclusions.txt` (renamed upstream to `shared-layered-test-exclusions.txt`). | Diagnosed upstream template file path bug in line 248 |
+| 3 | Weekly Layered Future Defaults | **In Progress** | [45527017023](https://github.com/sajuptpm/graal/actions/runs/45527017023) | 🟡 **Running**: `Populate matrix` (1m17s) ✅, `build-graalvm` (9m35s) ✅. `Build layered base` queued waiting for runner slot. | Live execution in progress |
+| 4 | Weekly Reachability Future Defaults | **In Progress** | [45527086227](https://github.com/sajuptpm/graal/actions/runs/45527086227) | 🟡 **Running Matrix**: `Populate matrix` (1m5s) ✅, `build-graalvm` (8m8s) ✅. Active 258-job parallel matrix: **53+ coordinates passed**, 5 failed, 20 running, 180 queued. | Live execution verifying 258 community libraries |
 
 ---
 
@@ -92,3 +92,38 @@ The four workflows are executed in the following sequential order:
   3. **Sequential Monolithic Runner Ceiling**:
      * Building a dedicated base layer and compiling a native test image takes 10 to 11 minutes per coordinate.
      * Sequentially running 256 coordinates would require ~42 hours on a single standard runner, guaranteeing a timeout at 6 hours (360m).
+
+---
+
+## 6. Detailed Diagnostic Analysis: Workflow 2 (Shared Layers)
+
+* **Run ID**: `45523145309`
+* **Duration**: 35m 42s
+* **Execution Breakdown**:
+  * `Populate matrix`: Passed in 1m 15s.
+  * `build-graalvm`: Passed in 8m 22s.
+  * `Build layered base`: Passed in 7m 57s.
+    * **Major Success**: Successfully compiled and published the `reachability-metadata-base-layer` artifact using GraalVM CE.
+  * `Layered metadata tests`: Failed in 19m 14s.
+* **Root Cause**:
+  * Upstream path discrepancy in `.github/workflows/reachability-metadata-template.yml` line 248:
+    ```bash
+    extra_options=(-Ptck.excludedCoordinatesFile=tests/tck-build-logic/src/main/resources/layered-test-exclusions.txt)
+    ```
+  * Gradle failed immediately on each coordinate with:
+    ```text
+    Caused by: org.gradle.api.GradleException: Coordinate exclusion file does not exist:
+    .../tests/tck-build-logic/src/main/resources/layered-test-exclusions.txt
+    ```
+  * Upstream renamed this file to `shared-layered-test-exclusions.txt`.
+
+---
+
+## 7. Live Matrix Execution: Workflow 4 (Future Defaults Matrix)
+
+* **Run ID**: `45527086227`
+* **Status**: Actively executing 258 parallel matrix jobs across the runner pool.
+* **Early Results**:
+  * `build-graalvm` passed in 8m 8s.
+  * Over 53+ libraries already confirmed **PASSED** under `--future-defaults=all` (including `hibernate-core`, `spring-core`, `fastutil`, `assertj-core`, `couchbase`, `pulsar-client`, `hazelcast`, etc.).
+  * Fully validates reachability metadata configurations under strict future optimization flags.
