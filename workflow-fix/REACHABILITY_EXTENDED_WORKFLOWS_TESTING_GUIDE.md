@@ -61,7 +61,34 @@ The four workflows are executed in the following sequential order:
 
 | Step | Workflow Name | Trigger Status | Run ID | Outcome | Changes / Fixes Made |
 |:---:|:---|:---:|:---:|:---:|:---|
-| 1 | Weekly Dedicated-Layer Tests | **Running** | [45461118315](https://github.com/sajuptpm/graal/actions/runs/45461118315) | In Progress (Populate matrix & build-graalvm passed; test-layered-metadata executing) | Testing upstream configuration |
-| 2 | Weekly Layered Tests | Pending Step 1 | TBD | Pending | Will execute after Step 1 |
+| 1 | Weekly Dedicated-Layer Tests | **Completed** | [45461118315](https://github.com/sajuptpm/graal/actions/runs/45461118315) | ⏱️ **Canceled (Timeout 360m)**: 43 coordinates tested before 6-hour runner limit hit. All 42 completed coordinates failed with Native Image layer layout mismatch (`monitorOffset` mismatch). | Diagnosed SubstrateVM layout verification bug & missing `dedicated-layer-test-exclusions.txt` flag |
+| 2 | Weekly Layered Tests | **Running** | [45523145309](https://github.com/sajuptpm/graal/actions/runs/45523145309) | In Progress (`build-graalvm` & `Populate matrix` running) | Initial live execution |
 | 3 | Weekly Layered Future Defaults | Pending Step 2 | TBD | Pending | Will execute after Step 2 |
 | 4 | Weekly Reachability Future Defaults | Pending Step 3 | TBD | Pending | Will execute after Step 3 |
+
+---
+
+## 5. Detailed Diagnostic Analysis: Workflow 1 (Dedicated Layers)
+
+* **Run ID**: `45461118315`
+* **Duration**: Exactly 6 hours (360 minutes, GitHub Actions runner ceiling)
+* **Execution Breakdown**:
+  * `Populate matrix`: Passed in 1m 17s (identified top coordinates).
+  * `build-graalvm`: Passed in 9m 11s (built GraalVM CE distribution artifact).
+  * `Layered metadata tests`: Ran sequentially from 18:44:28Z to 00:44:45Z (6 hours).
+* **Test Metrics**:
+  * Total Coordinates Attempted: 43
+  * Passed: 0
+  * Failed: 42
+  * Interrupted / Timed Out: 1 (`ant:ant:1.6`)
+* **Key Root Causes Identified**:
+  1. **SubstrateVM Layout Assertion Failure**:
+     * Primary Error: `Error: Should not reach here: Object layout differs across image layers for org.assertj.core.configuration.Services: monitorOffset is 4 in the shared layer but 0 in the current layer.`
+     * Class affected: `AssertJ` / `OpenTelemetry` (present on the test classpath of almost every JUnit test).
+     * Root origin: Commit `062d701e8cc` ("Validate object layouts across image layers") introduced `SVMImageLayerLoader.verifyObjectLayoutCompatibility` which enforces identical monitor offsets between base layer and upper layer.
+  2. **Upstream Exclusion Flag Omission**:
+     * Upstream repository `oracle/graalvm-reachability-metadata` maintains `tests/tck-build-logic/src/main/resources/dedicated-layer-test-exclusions.txt` with 492 known problematic coordinates.
+     * However, `.github/workflows/reachability-metadata-template.yml` line 245 omitted passing `-Ptck.excludedCoordinatesFile=tests/tck-build-logic/src/main/resources/dedicated-layer-test-exclusions.txt`.
+  3. **Sequential Monolithic Runner Ceiling**:
+     * Building a dedicated base layer and compiling a native test image takes 10 to 11 minutes per coordinate.
+     * Sequentially running 256 coordinates would require ~42 hours on a single standard runner, guaranteeing a timeout at 6 hours (360m).
