@@ -1,5 +1,5 @@
 diff --git a/.github/workflows/reachability-metadata-template.yml b/.github/workflows/reachability-metadata-template.yml
-index 478de8d4c47..5f541bb00b4 100644
+index 478de8d4c47..88b3bb27d0c 100644
 --- a/.github/workflows/reachability-metadata-template.yml
 +++ b/.github/workflows/reachability-metadata-template.yml
 @@ -67,7 +67,7 @@ jobs:
@@ -11,3 +11,21 @@ index 478de8d4c47..5f541bb00b4 100644
      outputs:
        matrix: ${{ steps.set-matrix.outputs.matrix }}
      steps:
+@@ -242,10 +242,15 @@ jobs:
+         run: |
+           if [[ "${{ inputs.LAYERED_TESTS }}" == "dedicated" ]]; then
+             task=testDedicatedLayer
+-            extra_options=(-Ptck.layered.deleteDedicatedLayerAfterTest=true)
++            extra_options=(
++              -Ptck.layered.deleteDedicatedLayerAfterTest=true
++              -Ptck.excludedCoordinatesFile=tests/tck-build-logic/src/main/resources/dedicated-layer-test-exclusions.txt
++            )
+           else
+             task=testSharedLayer
+-            extra_options=(-Ptck.excludedCoordinatesFile=tests/tck-build-logic/src/main/resources/layered-test-exclusions.txt)
++            extra_options=(
++              -Ptck.excludedCoordinatesFile=tests/tck-build-logic/src/main/resources/shared-layered-test-exclusions.txt
++            )
+           fi
+           result=0
+           for coordinate in $(jq -r '.[]' <<< "${COORDINATES}"); do
